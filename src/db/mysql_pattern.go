@@ -3,9 +3,11 @@ package db
 import ()
 
 var (
+	OPEN         = fillRequest(5, 5, fillOpen)
 	SELECT       = fillRequest(2, 3, fillSelect)
 	CREATE_TABLE = fillRequest(3, -1, fillCreate_Table)
-	INSERT_INTO = fillRequest(3, -1, fillInsert_Into)
+	DROP_TABLE   = fillRequest(1, -1, fillDrop_Table)
+	INSERT_INTO  = fillRequest(3, -1, fillInsert_Into)
 )
 
 type fill func(values []string) (request string)
@@ -23,6 +25,10 @@ func fillRequest(min_args, max_args int, requestFiller fill) func([]string) stri
 	}
 }
 
+func fillOpen(values []string) (request string) {
+	return values[0] + ":" + values[1] + "@tcp(" + values[2] + ":" + values[3] + ")/" + values[4]
+}
+
 func fillSelect(values []string) (request string) {
 	switch len(values) {
 	case 3:
@@ -37,12 +43,25 @@ func fillSelect(values []string) (request string) {
 func fillCreate_Table(values []string) (request string) {
 	switch size := len(values); {
 	case size > 3:
-		for i := 2; i < size - 1; i++ {
+		for i := 2; i < size-1; i++ {
 			request += ", " + values[i]
 		}
 		fallthrough
 	case size == 3:
 		request = "CREATE TABLE IF NOT EXISTS " + values[0] + "(" + values[1] + request + ") ENGINE=" + values[size-1] + ";"
+	}
+	return
+}
+
+func fillDrop_Table(values []string) (request string) {
+	switch size := len(values); {
+	case size > 1:
+		for i := 1; i < size; i++ {
+			request += ", " + values[i]
+		}
+		fallthrough
+	case size == 1:
+		request = "DROP TABLE IF EXISTS " + values[0] + request + ";"
 	}
 	return
 }
