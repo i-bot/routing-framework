@@ -2,8 +2,8 @@ package settings
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
+	"errorHandler"
 )
 
 //var settingsHolder SettingsHolder
@@ -16,20 +16,14 @@ var location = os.Getenv("HOME") + "/.network-distributor/settings.json"
 
 func LoadSettings() (settings Settings) {
 	file, err := os.Open(location)
-	if err != nil {
-		fmt.Println("error: " + err.Error())
-		return
-	}
+	errorHandler.HandleError(err)
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 
 	settings = Settings{}
-	err = decoder.Decode(&settings)
-	if err != nil {
-		fmt.Println("error: " + err.Error())
-		return
-	}
+	errorHandler.HandleError(decoder.Decode(&settings))
+
 	
 	return
 }
