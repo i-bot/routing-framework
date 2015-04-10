@@ -2,14 +2,14 @@ package settings
 
 import (
 	"encoding/json"
-	"os"
 	"errorHandler"
+	"os"
 )
-
-//var settingsHolder SettingsHolder
 
 type Settings struct {
 	Username, Password, IP, Port, DB_Name string
+
+	Databases [][]string
 }
 
 var location = os.Getenv("HOME") + "/.network-distributor/settings.json"
@@ -24,6 +24,5 @@ func LoadSettings() (settings Settings) {
 	settings = Settings{}
 	errorHandler.HandleError(decoder.Decode(&settings))
 
-	
 	return
 }
