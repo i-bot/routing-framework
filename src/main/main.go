@@ -1,27 +1,36 @@
 package main
 
 import (
+	"database/sql"
 	"db"
-	"fmt"
+	"errorHandler"
+	_ "github.com/go-sql-driver/mysql"
+	"settings"
+)
+
+var (
+	mysql_db   *sql.DB
+	properties settings.Settings
 )
 
 func main() {
-	var db_connection db.DB_Connection
-	mysql := db.MySQL{}
-	db_connection = &mysql
+	setup()
+}
 
-	db_connection.Open("go", "go", "127.0.0.1", "3306", "godb")
-	rows := db_connection.Query("SELECT * FROM animals")
+func setup() {
+	var err error
 
-	defer rows.Close()
-	for rows.Next() {
-		var id int
-		var name string
-		rows.Scan(&id, &name)
-		
-		fmt.Print(id)
-		fmt.Println("|" + name)
+	properties = settings.LoadSettings()
+
+	mysql_db, err = sql.Open("mysql", db.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DB_Name}))
+	errorHandler.HandleError(err)
+
+	for _, element := range properties.Databases {
+		_, err = mysql_db.Query(db.DROP_TABLE(element[:1]))
+		errorHandler.HandleError(err)
+		_, err = mysql_db.Query(db.CREATE_TABLE(element))
+		errorHandler.HandleError(err)
 	}
 
-	defer db_connection.Close()
+	return
 }
