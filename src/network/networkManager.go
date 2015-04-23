@@ -32,7 +32,12 @@ func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 }
 
 func (networkManager *NetworkManager) Listen(localport int) {
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", "")
+	errorHandler.HandleError(err)
 
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	errorHandler.HandleError(err)
+	tcpConnections[ConnectionIdentifier{conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr)}] = conn
 }
 
 func (networkManager *NetworkManager) Close(identifier ConnectionIdentifier) {
