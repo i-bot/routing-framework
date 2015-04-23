@@ -6,6 +6,7 @@
     "DB_Name":  "godb",
 
     "IsActionExecutionSynchronous": true
+    "ConnectionTaskStackSleepTime": 10
 
     "Connections":          "connections",
     "ConnectionsTaskStack": "connectionsTaskStack",
