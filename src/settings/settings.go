@@ -12,7 +12,7 @@ type Settings struct {
 	IsActionExecutionSynchronous bool
 	ConnectionTaskStackSleepTime int
 
-	Databases                                                                                       [][]string
+	Databases                                                                              [][]string
 	Connections, ActionStack, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
 }
 
