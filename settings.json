@@ -5,6 +5,8 @@
     "Port":     "3306",
     "DB_Name":  "godb",
 
+    "IsActionExecutionSynchronous": true
+
     "Connections":          "connections",
     "ConnectionsTaskStack": "connectionsTaskStack",
     "OnOpenActions":        "onOpenActions",

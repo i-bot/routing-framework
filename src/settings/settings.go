@@ -8,7 +8,9 @@ import (
 
 type Settings struct {
 	Username, Password, IP, Port, DB_Name string
-
+	
+	IsActionExecutionSynchronous bool
+	
 	Databases [][]string
 	Connections, ConnectionsTaskStack, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
 
