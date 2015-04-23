@@ -22,25 +22,11 @@ type IAction interface {
 }
 
 type Action struct {
-	ID                                               int
+	ID                                 int
 	Action, Connection_condition, Args string
-}
 
-func HandleAction(action, action_description, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
-	switch action {
-	case EXECUTE:
-		cmd := strings.Split(action_description, " ")[0]
-		args := strings.Split(action_description, " ")[1:]
-		args = append(args, msg, identifier.RemoteAddress.IP.String(), strconv.Itoa(identifier.LocalAddress.Port), strconv.Itoa(identifier.RemoteAddress.Port))
-		command := exec.Command(cmd, args...)
-		if networkManager.Properties.IsActionExecutionSynchronous {
-			go command.Run()
-		} else {
-			command.Run()
-		}
-	case FORWARD_MSG:
-		//Add message forwarding
-	}
+	Msg        string
+	Identifier ConnectionIdentifier
 }
 
 func (action Action) Handle(networkManager *NetworkManager) {
@@ -51,20 +37,44 @@ func (action Action) Handle(networkManager *NetworkManager) {
 		errorHandler.HandleError(err)
 
 		networkManager.Connect(split[0], remoteport)
+
 	case LISTEN:
 		split := strings.Split(action.Args, ":")
 		localport, err := strconv.Atoi(split[0])
 		errorHandler.HandleError(err)
 
 		networkManager.Listen(localport)
+
 	case CLOSE:
-		identifiers := getMatchingConnections(&action, networkManager)
+		identifiers := getMatchingConnections(action.Connection_condition, networkManager)
 
 		for _, identifier := range identifiers {
 			networkManager.Close(identifier)
 		}
+
 	case WRITE:
-		identifiers := getMatchingConnections(&action, networkManager)
+		identifiers := getMatchingConnections(action.Connection_condition, networkManager)
+
+		for _, identifier := range identifiers {
+			networkManager.Write(identifier, action.Args)
+		}
+
+	case EXECUTE:
+		cmd := strings.Split(action.Args, " ")[0]
+		args := strings.Split(action.Args, " ")[1:]
+		args = append(args, action.Msg, action.Identifier.RemoteAddress.IP.String(),
+			strconv.Itoa(action.Identifier.LocalAddress.Port), strconv.Itoa(action.Identifier.RemoteAddress.Port))
+
+		command := exec.Command(cmd, args...)
+
+		if !networkManager.Properties.IsActionExecutionSynchronous {
+			go command.Run()
+		} else {
+			command.Run()
+		}
+
+	case FORWARD_MSG:
+		identifiers := getMatchingConnections(action.Args, networkManager)
 
 		for _, identifier := range identifiers {
 			networkManager.Write(identifier, action.Args)
@@ -72,8 +82,8 @@ func (action Action) Handle(networkManager *NetworkManager) {
 	}
 }
 
-func getMatchingConnections(action *Action, networkManager *NetworkManager) (identifiers []ConnectionIdentifier) {
-	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.Connections, action.Connection_condition}))
+func getMatchingConnections(where string, networkManager *NetworkManager) (identifiers []ConnectionIdentifier) {
+	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.Connections, where}))
 	errorHandler.HandleError(err)
 
 	defer rows.Close()

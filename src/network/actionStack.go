@@ -16,6 +16,7 @@ func HandleTaskStack(networkManager *NetworkManager) {
 		defer rows.Close()
 		for rows.Next() {
 			var action Action
+
 			err := rows.Scan(&action.ID, &action.Action, &action.Connection_condition, &action.Args)
 			errorHandler.HandleError(err)
 
@@ -26,4 +27,3 @@ func HandleTaskStack(networkManager *NetworkManager) {
 		time.Sleep(duration)
 	}
 }
-

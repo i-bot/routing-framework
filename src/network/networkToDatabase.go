@@ -1,8 +1,8 @@
 package network
 
 import (
-	"db"
 	"database/sql"
+	"db"
 	"errorHandler"
 	"strconv"
 )
@@ -22,16 +22,16 @@ func AddConnection(networkManager *NetworkManager, identifier ConnectionIdentifi
 	scanAndHandleRows(rows, "", networkManager, identifier, ip, localport, remoteport)
 }
 
-func scanAndHandleRows(rows *sql.Rows, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier, ip, localport, remoteport string){
+func scanAndHandleRows(rows *sql.Rows, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier, ip, localport, remoteport string) {
 	defer rows.Close()
 	for rows.Next() {
-		var id int
-		var connection_condition, action, action_description string
-		err := rows.Scan(&id, &connection_condition, &action, &action_description)
+		var action Action
+
+		err := rows.Scan(&action.ID, &action.Action, &action.Connection_condition, &action.Args)
 		errorHandler.HandleError(err)
 
 		matchingConnections, err := networkManager.Database.Query(db.SELECT([]string{
-			"*", "(" + db.SELECT([]string{"*", networkManager.Properties.Connections, connection_condition}) + ")",
+			"*", "(" + db.SELECT([]string{"*", networkManager.Properties.Connections, action.Connection_condition}) + ")",
 			networkManager.Properties.Connections + ".ip=" + ip + "AND " + networkManager.Properties.Connections + ".localport=" + localport +
 				"AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
 
@@ -41,11 +41,13 @@ func scanAndHandleRows(rows *sql.Rows, msg string, networkManager *NetworkManage
 		}
 
 		if size == 1 {
-			HandleAction(action, action_description, msg, networkManager, identifier)
+			action.Msg = msg
+			action.Identifier = identifier
+			action.Handle(networkManager)
 		}
 
-		matchingConnections.Close()
 		errorHandler.HandleError(matchingConnections.Err())
+		matchingConnections.Close()
 	}
 	errorHandler.HandleError(rows.Err())
 }
