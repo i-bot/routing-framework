@@ -1,14 +1,21 @@
 {
-    "Username":"go",
-    "Password":"go",
-    "IP":"127.0.0.1",
-    "Port":"3306",
-    "DB_Name":"godb",
+    "Username": "go",
+    "Password": "go",
+    "IP":       "127.0.0.1",
+    "Port":     "3306",
+    "DB_Name":  "godb",
+
+    "Connections":          "connections",
+    "ConnectionsTaskStack": "connectionsTaskStack",
+    "OnOpenActions":        "onOpenActions",
+    "OnWriteActions":       "onWriteActions",
+    "OnReadActions":        "onReadActions",
+    "OnCloseActions":       "onCloseActions",
 
     "databases":[   ["connections","ip VARCHAR(15) NOT NULL","localport SMALLINT UNSIGNED NOT NULL","remoteport SMALLINT UNSIGNED NOT NULL","PRIMARY KEY(ip,localport,remoteport)","MyISAM"],
                     ["connectionsTaskStack","id BIGINT NOT NULL AUTO_INCREMENT","task ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE')","connection_condition MEDIUMTEXT","args MEDIUMTEXT","PRIMARY KEY(id)","InnoDB"],
-                    ["onOpenActions","id INT NOT NULL AUTO_INCREMENT","connection_condition MEDIUMTEXT","action ENUM('EXEC', 'FORWARD_MSG')","action_description MEDIUMTEXT","PRIMARY KEY(id)","MyISAM"],
+                    ["onOpenActions","id INT NOT NULL AUTO_INCREMENT","connection_condition MEDIUMTEXT","action ENUM('EXEC')","action_description MEDIUMTEXT","PRIMARY KEY(id)","MyISAM"],
                     ["onWriteActions","id INT NOT NULL AUTO_INCREMENT","connection_condition MEDIUMTEXT","action ENUM('EXEC', 'FORWARD_MSG')","action_description MEDIUMTEXT","PRIMARY KEY(id)","MyISAM"],
                     ["onReadActions","id INT NOT NULL AUTO_INCREMENT","connection_condition MEDIUMTEXT","action ENUM('EXEC', 'FORWARD_MSG')","action_description MEDIUMTEXT","PRIMARY KEY(id)","MyISAM"],
-                    ["onCloseActions","id INT NOT NULL AUTO_INCREMENT","connection_condition MEDIUMTEXT","action ENUM('EXEC', 'FORWARD_MSG')","action_description MEDIUMTEXT","PRIMARY KEY(id)","MyISAM"]]
+                    ["onCloseActions","id INT NOT NULL AUTO_INCREMENT","connection_condition MEDIUMTEXT","action ENUM('EXEC')","action_description MEDIUMTEXT","PRIMARY KEY(id)","MyISAM"]]
 }
