@@ -1,28 +1,35 @@
 package network
 
 import (
-	"database/sql"
 	"db"
 	"errorHandler"
 	"strconv"
 )
 
 func AddConnection(networkManager *NetworkManager, identifier ConnectionIdentifier) {
-	ip := identifier.RemoteAddress.IP.String()
-	localport := strconv.Itoa(identifier.LocalAddress.Port)
-	remoteport := strconv.Itoa(identifier.RemoteAddress.Port)
+	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
 
 	_, err := networkManager.Database.Query(db.INSERT_INTO([]string{
 		networkManager.Properties.Connections, "ip,localport,remoteport", "'" + ip + "'," + localport + "," + remoteport}))
 	errorHandler.HandleError(err)
 
-	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.OnOpenActions}))
-	errorHandler.HandleError(err)
-
-	scanAndHandleRows(rows, "", networkManager, identifier, ip, localport, remoteport)
+	scanAndHandleRows(networkManager.Properties.OnOpenActions, "", networkManager, identifier)
 }
 
-func scanAndHandleRows(rows *sql.Rows, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier, ip, localport, remoteport string) {
+func HandleRead(msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
+	scanAndHandleRows(networkManager.Properties.OnReadActions, msg, networkManager, identifier)
+}
+
+func HandleWrite(msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
+	scanAndHandleRows(networkManager.Properties.OnWriteActions, msg, networkManager, identifier)
+}
+
+func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
+		ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
+	
+	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", table}))
+	errorHandler.HandleError(err)
+
 	defer rows.Close()
 	for rows.Next() {
 		var action Action
@@ -50,4 +57,12 @@ func scanAndHandleRows(rows *sql.Rows, msg string, networkManager *NetworkManage
 		matchingConnections.Close()
 	}
 	errorHandler.HandleError(rows.Err())
+}
+
+func convertConnectionIdentifierToStrings(identifier ConnectionIdentifier) (ip, localport, remoteport string) {
+	ip = identifier.RemoteAddress.IP.String()
+	localport = strconv.Itoa(identifier.LocalAddress.Port)
+	remoteport = strconv.Itoa(identifier.RemoteAddress.Port)
+
+	return
 }
