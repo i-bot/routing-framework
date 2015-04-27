@@ -25,8 +25,8 @@ func HandleWrite(msg string, networkManager *NetworkManager, identifier Connecti
 }
 
 func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
-		ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
-	
+	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
+
 	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", table}))
 	errorHandler.HandleError(err)
 
