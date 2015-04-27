@@ -8,6 +8,7 @@ var (
 	CREATE_TABLE = fillRequest(3, -1, fillCreate_Table)
 	DROP_TABLE   = fillRequest(1, -1, fillDrop_Table)
 	INSERT_INTO  = fillRequest(3, -1, fillInsert_Into)
+	DELETE       = fillRequest(2, 2, fillDelete)
 )
 
 type fill func(values []string) (request string)
@@ -75,6 +76,14 @@ func fillInsert_Into(values []string) (request string) {
 		fallthrough
 	case size == 3:
 		request = "INSERT INTO " + values[0] + "(" + values[1] + ") VALUES(" + values[2] + ")" + request + ";"
+	}
+	return
+}
+
+func fillDelete(values []string) (request string) {
+	switch size := len(values); {
+	case size == 2:
+		request = "DELETE FROM " + values[0] + " WHERE " + values[1] + ";"
 	}
 	return
 }
