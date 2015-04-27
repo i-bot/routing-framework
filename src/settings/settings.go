@@ -9,7 +9,6 @@ import (
 type Settings struct {
 	Username, Password, IP, Port, DB_Name string
 
-	IsActionExecutionSynchronous bool
 	ConnectionTaskStackSleepTime int
 
 	Databases                                                                              [][]string

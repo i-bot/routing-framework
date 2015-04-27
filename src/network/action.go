@@ -67,11 +67,7 @@ func (action Action) Handle(networkManager *NetworkManager) {
 
 		command := exec.Command(cmd, args...)
 
-		if !networkManager.Properties.IsActionExecutionSynchronous {
-			go command.Run()
-		} else {
-			command.Run()
-		}
+		command.Run()
 
 	case FORWARD_MSG:
 		identifiers := getMatchingConnections(action.Args, networkManager)
