@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func AddConnection(networkManager *NetworkManager, identifier ConnectionIdentifier) {
+func HandleOpen(networkManager *NetworkManager, identifier ConnectionIdentifier) {
 	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
 
 	_, err := networkManager.Database.Query(db.INSERT_INTO([]string{
@@ -22,6 +22,17 @@ func HandleRead(msg string, networkManager *NetworkManager, identifier Connectio
 
 func HandleWrite(msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
 	scanAndHandleRows(networkManager.Properties.OnWriteActions, msg, networkManager, identifier)
+}
+
+func HandleClose(networkManager *NetworkManager, identifier ConnectionIdentifier) {
+	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
+
+	_, err := networkManager.Database.Query(db.DELETE([]string{
+		networkManager.Properties.Connections, networkManager.Properties.Connections + ".ip=" + ip + "AND " + networkManager.Properties.Connections +
+			".localport=" + localport + "AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
+	errorHandler.HandleError(err)
+
+	scanAndHandleRows(networkManager.Properties.OnCloseActions, "", networkManager, identifier)
 }
 
 func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
