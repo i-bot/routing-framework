@@ -26,7 +26,7 @@ type Action struct {
 	Action, Connection_condition, Args string
 
 	Msg        string
-	Identifier ConnectionIdentifier
+	Identifier string
 }
 
 func (action Action) Handle(networkManager *NetworkManager) {
@@ -61,9 +61,10 @@ func (action Action) Handle(networkManager *NetworkManager) {
 
 	case EXECUTE:
 		cmd := strings.Split(action.Args, " ")[0]
+		ip, localport, remoteport := networkManager.ConvertToStrings(action.Identifier)
+
 		args := strings.Split(action.Args, " ")[1:]
-		args = append(args, action.Msg, action.Identifier.RemoteAddress.IP.String(),
-			strconv.Itoa(action.Identifier.LocalAddress.Port), strconv.Itoa(action.Identifier.RemoteAddress.Port))
+		args = append(args, ip, localport, remoteport)
 
 		command := exec.Command(cmd, args...)
 
@@ -78,7 +79,7 @@ func (action Action) Handle(networkManager *NetworkManager) {
 	}
 }
 
-func getMatchingConnections(where string, networkManager *NetworkManager) (identifiers []ConnectionIdentifier) {
+func getMatchingConnections(where string, networkManager *NetworkManager) (identifiers []string) {
 	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.Connections, where}))
 	errorHandler.HandleError(err)
 
@@ -89,7 +90,7 @@ func getMatchingConnections(where string, networkManager *NetworkManager) (ident
 		err := rows.Scan(&ip, &localport, &remoteport)
 		errorHandler.HandleError(err)
 
-		identifiers = append(identifiers, networkManager.ConvertToConnectionIdentifier(ip, localport, remoteport))
+		identifiers = append(identifiers, networkManager.ConvertToIdentifier(ip, localport, remoteport))
 	}
 	errorHandler.HandleError(rows.Err())
 

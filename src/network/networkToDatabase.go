@@ -3,11 +3,10 @@ package network
 import (
 	"db"
 	"errorHandler"
-	"strconv"
 )
 
-func HandleOpen(networkManager *NetworkManager, identifier ConnectionIdentifier) {
-	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
+func HandleOpen(networkManager *NetworkManager, identifier string) {
+	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
 	_, err := networkManager.Database.Query(db.INSERT_INTO([]string{
 		networkManager.Properties.Connections, "ip,localport,remoteport", "'" + ip + "'," + localport + "," + remoteport}))
@@ -16,16 +15,16 @@ func HandleOpen(networkManager *NetworkManager, identifier ConnectionIdentifier)
 	scanAndHandleRows(networkManager.Properties.OnOpenActions, "", networkManager, identifier)
 }
 
-func HandleRead(msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
+func HandleRead(msg string, networkManager *NetworkManager, identifier string) {
 	scanAndHandleRows(networkManager.Properties.OnReadActions, msg, networkManager, identifier)
 }
 
-func HandleWrite(msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
+func HandleWrite(msg string, networkManager *NetworkManager, identifier string) {
 	scanAndHandleRows(networkManager.Properties.OnWriteActions, msg, networkManager, identifier)
 }
 
-func HandleClose(networkManager *NetworkManager, identifier ConnectionIdentifier) {
-	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
+func HandleClose(networkManager *NetworkManager, identifier string) {
+	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
 	_, err := networkManager.Database.Query(db.DELETE([]string{
 		networkManager.Properties.Connections, networkManager.Properties.Connections + ".ip=" + ip + "AND " + networkManager.Properties.Connections +
@@ -35,8 +34,8 @@ func HandleClose(networkManager *NetworkManager, identifier ConnectionIdentifier
 	scanAndHandleRows(networkManager.Properties.OnCloseActions, "", networkManager, identifier)
 }
 
-func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier ConnectionIdentifier) {
-	ip, localport, remoteport := convertConnectionIdentifierToStrings(identifier)
+func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier string) {
+	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
 	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", table}))
 	errorHandler.HandleError(err)
@@ -68,12 +67,4 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 		matchingConnections.Close()
 	}
 	errorHandler.HandleError(rows.Err())
-}
-
-func convertConnectionIdentifierToStrings(identifier ConnectionIdentifier) (ip, localport, remoteport string) {
-	ip = identifier.RemoteAddress.IP.String()
-	localport = strconv.Itoa(identifier.LocalAddress.Port)
-	remoteport = strconv.Itoa(identifier.RemoteAddress.Port)
-
-	return
 }

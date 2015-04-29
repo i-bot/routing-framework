@@ -5,19 +5,17 @@ import (
 	"errorHandler"
 	"net"
 	"settings"
+	"strconv"
 )
 
 type INetworkManager interface {
 	Connect(ip string, remoteport int)
 	Listen(localport int)
-	Close(identifier ConnectionIdentifier)
-	Write(identifier ConnectionIdentifier, msg string)
-	Read(identifier ConnectionIdentifier)
-	ConvertToConnectionIdentifier(ip string, localport, remoteport int) (identifier ConnectionIdentifier)
-}
-
-type ConnectionIdentifier struct {
-	LocalAddress, RemoteAddress *net.TCPAddr
+	Close(identifier string)
+	Write(identifier string, msg string)
+	Read(identifier string)
+	ConvertToIdentifier(ip string, localport, remoteport int) (identifier string)
+	ConvertToStrings(identifier string) (ip, localport, remoteport string)
 }
 
 type NetworkManager struct {
@@ -25,34 +23,47 @@ type NetworkManager struct {
 	Properties *settings.Settings
 }
 
-var tcpConnections map[ConnectionIdentifier]*net.TCPConn
+var tcpConnections map[string]*net.TCPConn
 
 func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
-
-}
-
-func (networkManager *NetworkManager) Listen(localport int) {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", "")
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":"+strconv.Itoa(remoteport))
 	errorHandler.HandleError(err)
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	errorHandler.HandleError(err)
-	tcpConnections[ConnectionIdentifier{conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr)}] = conn
+	tcpConnections[convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))] = conn
 }
 
-func (networkManager *NetworkManager) Close(identifier ConnectionIdentifier) {
-
+func (networkManager *NetworkManager) Listen(localport int) {
 }
 
-func (networkManager *NetworkManager) Write(identifier ConnectionIdentifier, msg string) {
-
-}
-
-func (networkManager *NetworkManager) Read(identifier ConnectionIdentifier) {
+func (networkManager *NetworkManager) Close(identifier string) {
 
 }
 
-func (networkManager *NetworkManager) ConvertToConnectionIdentifier(ip string, localport, remoteport int) (identifier ConnectionIdentifier) {
+func (networkManager *NetworkManager) Write(identifier string, msg string) {
+	/*conn, contained := tcpConnections[identifier]
+	
+	if contained {
+		//conn.Write(msg)
+	}*/
+}
 
-	return ConnectionIdentifier{}
+func (networkManager *NetworkManager) Read(identifier string) {
+
+}
+
+func convertToIdentifier(localAddr, remoteAddr *net.TCPAddr) (identifier string) {
+
+	return ""
+}
+
+func (networkManager *NetworkManager) ConvertToIdentifier(ip string, localport, remoteport int) (identifier string) {
+
+	return ""
+}
+
+func (networkManager *NetworkManager) ConvertToStrings(identifier string) (ip, localport, remoteport string) {
+
+	return "", "", ""
 }
