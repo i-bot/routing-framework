@@ -5,7 +5,7 @@
     "Port":     "3306",
     "DB_Name":  "",
 
-    "ConnectionTaskStackSleepTime": 10
+    "ConnectionTaskStackSleepTime": 10,
 
     "Connections":      "connections",
     "ActionQueue":      "actionQueue",
