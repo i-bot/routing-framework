@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-func HandleTaskStack(networkManager *NetworkManager) {
+func HandleTaskQueue(networkManager *NetworkManager) {
 	duration := time.Duration(networkManager.Properties.ConnectionTaskStackSleepTime) * time.Millisecond
 
 	for {
-		rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.ActionStack}))
+		rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.ActionQueue}))
 		errorHandler.HandleError(err)
 
 		defer rows.Close()

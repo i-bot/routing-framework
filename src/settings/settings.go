@@ -12,7 +12,7 @@ type Settings struct {
 	ConnectionTaskStackSleepTime int
 
 	Databases                                                                              [][]string
-	Connections, ActionStack, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
+	Connections, ActionQueue, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
 }
 
 var location = os.Getenv("HOME") + "/.network-distributor/settings.json"
