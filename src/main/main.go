@@ -6,18 +6,22 @@ import (
 	"errorHandler"
 	_ "github.com/go-sql-driver/mysql"
 	"settings"
+	"network"
 )
 
 var (
 	mysql_db   *sql.DB
-	properties settings.Settings
+	properties *settings.Settings
+	networkManager *network.NetworkManager
 )
 
 func main() {
-	setup()
+	setupDatabase()
+	setupNetworkManager()
+	startHandlingTaskQueue()
 }
 
-func setup() {
+func setupDatabase() {
 	var err error
 
 	properties = settings.LoadSettings()
@@ -33,4 +37,12 @@ func setup() {
 	}
 
 	return
+}
+
+func setupNetworkManager(){
+	networkManager = &network.NetworkManager{mysql_db, properties}
+}
+
+func startHandlingTaskQueue(){
+	go network.HandleTaskQueue(networkManager)
 }
