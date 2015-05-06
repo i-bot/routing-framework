@@ -3,12 +3,13 @@ package db
 import ()
 
 var (
-	OPEN         = fillRequest(5, 5, fillOpen)
-	SELECT       = fillRequest(2, 3, fillSelect)
-	CREATE_TABLE = fillRequest(3, -1, fillCreate_Table)
-	DROP_TABLE   = fillRequest(1, -1, fillDrop_Table)
-	INSERT_INTO  = fillRequest(3, -1, fillInsert_Into)
-	DELETE       = fillRequest(2, 2, fillDelete)
+	OPEN               = fillRequest(5, 5, fillOpen)
+	SELECT             = fillRequest(2, 3, fillSelect)
+	CREATE_TABLE       = fillRequest(3, -1, fillCreate_Table)
+	DROP_TABLE         = fillRequest(1, -1, fillDrop_Table)
+	INSERT_INTO        = fillRequest(3, -1, fillInsert_Into)
+	DELETE             = fillRequest(2, 2, fillDelete)
+	UPDATE_PRIMARY_KEY = fillRequest(1, 1, fillUpdate_Primary_Key)
 )
 
 type fill func(values []string) (request string)
@@ -87,3 +88,12 @@ func fillDelete(values []string) (request string) {
 	}
 	return
 }
+
+func fillUpdate_Primary_Key(values []string) (request string) {
+	switch size := len(values); {
+	case size == 1:
+		request = "SET @count=0; UPDATE " + values[0] + " SET " + values[0] + ".id = @count:= @count + 1;"
+	}
+	return
+}
+

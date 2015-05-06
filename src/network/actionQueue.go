@@ -23,6 +23,9 @@ func HandleTaskQueue(networkManager *NetworkManager) {
 			action.Handle(networkManager)
 		}
 		errorHandler.HandleError(rows.Err())
+		
+		_, err = networkManager.Database.Query(db.UPDATE_PRIMARY_KEY([]string{networkManager.Properties.ActionQueue}))
+		errorHandler.HandleError(err)
 
 		time.Sleep(duration)
 	}
