@@ -15,9 +15,7 @@ type Settings struct {
 	Connections, ActionQueue, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
 }
 
-var location = os.Getenv("HOME") + "/.network-distributor/settings.json"
-
-func LoadSettings() (settings *Settings) {
+func LoadSettings(location string) (settings *Settings) {
 	file, err := os.Open(location)
 	errorHandler.HandleError(err)
 	defer file.Close()

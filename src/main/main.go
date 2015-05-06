@@ -4,27 +4,36 @@ import (
 	"database/sql"
 	"db"
 	"errorHandler"
+	"errors"
 	_ "github.com/go-sql-driver/mysql"
-	"settings"
 	"network"
+	"os"
+	"settings"
 )
 
 var (
-	mysql_db   *sql.DB
-	properties *settings.Settings
+	mysql_db       *sql.DB
+	properties     *settings.Settings
 	networkManager *network.NetworkManager
 )
 
 func main() {
+	loadSettings(os.Args)
 	setupDatabase()
 	setupNetworkManager()
 	startHandlingTaskQueue()
 }
 
+func loadSettings(args []string) {
+	if len(args) == 1 {
+		properties = settings.LoadSettings(args[0])
+	} else {
+		errorHandler.HandleError(errors.New("Pass the location of the configuration file"))
+	}
+}
+
 func setupDatabase() {
 	var err error
-
-	properties = settings.LoadSettings()
 
 	mysql_db, err = sql.Open("mysql", db.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DB_Name}))
 	errorHandler.HandleError(err)
@@ -39,10 +48,10 @@ func setupDatabase() {
 	return
 }
 
-func setupNetworkManager(){
+func setupNetworkManager() {
 	networkManager = &network.NetworkManager{mysql_db, properties}
 }
 
-func startHandlingTaskQueue(){
+func startHandlingTaskQueue() {
 	go network.HandleTaskQueue(networkManager)
 }

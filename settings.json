@@ -1,9 +1,9 @@
 {
-    "Username": "go",
-    "Password": "go",
+    "Username": "",
+    "Password": "",
     "IP":       "127.0.0.1",
     "Port":     "3306",
-    "DB_Name":  "godb",
+    "DB_Name":  "",
 
     "ConnectionTaskStackSleepTime": 10
 
