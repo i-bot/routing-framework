@@ -25,10 +25,10 @@ func main() {
 }
 
 func loadSettings(args []string) {
-	if len(args) == 1 {
-		properties = settings.LoadSettings(args[0])
+	if len(args) == 2 {
+		properties = settings.LoadSettings(args[1])
 	} else {
-		errorHandler.HandleError(errors.New("Pass the location of the configuration file"))
+		errorHandler.HandleError(errors.New("Pass the location of the configuration file as second argument (first should be the location of the bin)"))
 	}
 }
 
