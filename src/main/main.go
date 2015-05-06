@@ -53,5 +53,5 @@ func setupNetworkManager() {
 }
 
 func startHandlingTaskQueue() {
-	go network.HandleTaskQueue(networkManager)
+	network.HandleTaskQueue(networkManager)
 }
