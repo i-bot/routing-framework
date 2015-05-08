@@ -3,6 +3,7 @@ package network
 import (
 	"db"
 	"errorHandler"
+	"strconv"
 	"time"
 )
 
@@ -13,7 +14,6 @@ func HandleTaskQueue(networkManager *NetworkManager) {
 		rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.ActionQueue}))
 		errorHandler.HandleError(err)
 
-		defer rows.Close()
 		for rows.Next() {
 			var action Action
 
@@ -21,12 +21,32 @@ func HandleTaskQueue(networkManager *NetworkManager) {
 			errorHandler.HandleError(err)
 
 			action.Handle(networkManager)
+
+			_, err = networkManager.Database.Exec(db.DELETE([]string{networkManager.Properties.ActionQueue, "actionQueue.id=" + strconv.Itoa(action.ID)}))
+			errorHandler.HandleError(err)
 		}
 		errorHandler.HandleError(rows.Err())
-		
-		_, err = networkManager.Database.Query(db.UPDATE_PRIMARY_KEY([]string{networkManager.Properties.ActionQueue}))
+
+		updateID(networkManager, networkManager.Properties.ActionQueue)
 		errorHandler.HandleError(err)
 
+		rows.Close()
 		time.Sleep(duration)
 	}
+}
+
+func updateID(networkManager *NetworkManager, table string) {
+	tx, err := networkManager.Database.Begin()
+	errorHandler.HandleError(err)
+
+	defer tx.Rollback()
+
+	_, err = tx.Prepare("SET @count=0;")
+	errorHandler.HandleError(err)
+
+	_, err = tx.Prepare("UPDATE " + table + " SET " + table + ".id = @count:= @count + 1;")
+	errorHandler.HandleError(err)
+
+	err = tx.Commit()
+	errorHandler.HandleError(err)
 }
