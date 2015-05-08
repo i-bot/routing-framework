@@ -8,7 +8,7 @@ import (
 func HandleOpen(networkManager *NetworkManager, identifier string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
-	_, err := networkManager.Database.Query(db.INSERT_INTO([]string{
+	_, err := networkManager.Database.Exec(db.INSERT_INTO([]string{
 		networkManager.Properties.Connections, "ip,localport,remoteport", "'" + ip + "'," + localport + "," + remoteport}))
 	errorHandler.HandleError(err)
 
@@ -26,7 +26,7 @@ func HandleWrite(msg string, networkManager *NetworkManager, identifier string) 
 func HandleClose(networkManager *NetworkManager, identifier string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
-	_, err := networkManager.Database.Query(db.DELETE([]string{
+	_, err := networkManager.Database.Exec(db.DELETE([]string{
 		networkManager.Properties.Connections, networkManager.Properties.Connections + ".ip=" + ip + "AND " + networkManager.Properties.Connections +
 			".localport=" + localport + "AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
 	errorHandler.HandleError(err)

@@ -39,9 +39,9 @@ func setupDatabase() {
 	errorHandler.HandleError(err)
 
 	for _, element := range properties.Databases {
-		_, err = mysql_db.Query(db.DROP_TABLE(element[:1]))
+		_, err = mysql_db.Exec(db.DROP_TABLE(element[:1]))
 		errorHandler.HandleError(err)
-		_, err = mysql_db.Query(db.CREATE_TABLE(element))
+		_, err = mysql_db.Exec(db.CREATE_TABLE(element))
 		errorHandler.HandleError(err)
 	}
 
