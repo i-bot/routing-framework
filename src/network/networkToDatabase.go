@@ -44,7 +44,7 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 	for rows.Next() {
 		var action Action
 
-		err := rows.Scan(&action.ID, &action.Action, &action.Connection_condition, &action.Args)
+		err := rows.Scan(&action.ID, &action.Connection_condition, &action.Action, &action.Args)
 		errorHandler.HandleError(err)
 
 		matchingConnections, err := networkManager.Database.Query(db.SELECT([]string{
