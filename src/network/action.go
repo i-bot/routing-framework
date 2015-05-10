@@ -61,7 +61,11 @@ func (action Action) Handle(networkManager *NetworkManager) {
 
 	case EXECUTE:
 		cmd := strings.Split(action.Args, " ")[0]
-		ip, localport, remoteport := networkManager.ConvertToStrings(action.Identifier)
+
+		ip, localport, remoteport := "0.0.0.0", "0", "0"
+		if &action.Identifier == nil {
+			ip, localport, remoteport = networkManager.ConvertToStrings(action.Identifier)
+		}
 
 		args := strings.Split(action.Args, " ")[1:]
 		args = append(args, ip, localport, remoteport)
