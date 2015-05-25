@@ -34,7 +34,7 @@ func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 	errorHandler.HandleError(err)
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
-	if err != nil {
+	if err == nil {
 		tcpConnections[convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))] = conn
 	} else {
 		fmt.Println("Connect(): " + err.Error())
@@ -42,7 +42,7 @@ func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 }
 
 func (networkManager *NetworkManager) Listen(localport int) {
-	tcpAddr, err := net.ResolveTCPAddr("ip4", ":"+strconv.Itoa(localport))
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", ":"+strconv.Itoa(localport))
 	errorHandler.HandleError(err)
 
 	listener, err := net.ListenTCP("tcp", tcpAddr)
@@ -51,7 +51,7 @@ func (networkManager *NetworkManager) Listen(localport int) {
 	accept := func() {
 		for {
 			conn, err := listener.AcceptTCP()
-			if err != nil {
+			if err == nil {
 				identifier := convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
 
 				tcpConnections[identifier] = conn
@@ -74,7 +74,7 @@ func (networkManager *NetworkManager) Close(identifier string) {
 		for {
 			delete(tcpConnections, identifier)
 			err := conn.Close()
-			if err != nil {
+			if err == nil {
 				HandleClose(networkManager, identifier)
 			} else {
 				fmt.Println("Close(): " + err.Error())
@@ -90,7 +90,7 @@ func (networkManager *NetworkManager) Write(identifier string, msg string) {
 		for {
 			buf := []byte(msg)
 			_, err := conn.Write(buf)
-			if err != nil {
+			if err == nil {
 				HandleWrite(msg, networkManager, identifier)
 			} else {
 				fmt.Println("Write(): " + err.Error())
@@ -107,7 +107,7 @@ func (networkManager *NetworkManager) Read(identifier string) {
 			for {
 				var buf bytes.Buffer
 				_, err := io.Copy(&buf, conn)
-				if err != nil {
+				if err == nil {
 					HandleRead(buf.String(), networkManager, identifier)
 				} else {
 					fmt.Println("Read(): " + err.Error())
