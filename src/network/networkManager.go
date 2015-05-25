@@ -13,6 +13,7 @@ import (
 )
 
 type INetworkManager interface {
+	Init()
 	Connect(ip string, remoteport int)
 	Listen(localport int)
 	Close(identifier string)
@@ -28,6 +29,10 @@ type NetworkManager struct {
 }
 
 var tcpConnections map[string]*net.TCPConn
+
+func (networkManager *NetworkManager) Init() {
+	tcpConnections = make(map[string]*net.TCPConn)
+}
 
 func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":"+strconv.Itoa(remoteport))

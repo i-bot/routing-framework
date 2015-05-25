@@ -28,7 +28,7 @@ func loadSettings(args []string) {
 	if len(args) == 2 {
 		properties = settings.LoadSettings(args[1])
 	} else {
-		errorHandler.HandleError(errors.New("Pass the location of the configuration file as second argument (first should be the location of the bin)"))
+		errorHandler.HandleError(errors.New("Pass the location of the configuration file as first argument"))
 	}
 }
 
@@ -50,6 +50,7 @@ func setupDatabase() {
 
 func setupNetworkManager() {
 	networkManager = &network.NetworkManager{mysql_db, properties}
+	networkManager.Init()
 }
 
 func startHandlingTaskQueue() {
