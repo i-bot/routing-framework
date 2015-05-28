@@ -3,6 +3,7 @@ package network
 import (
 	"db"
 	"errorHandler"
+	"strings"
 )
 
 func HandleOpen(networkManager *NetworkManager, identifier string) {
@@ -47,14 +48,16 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 		err := rows.Scan(&action.ID, &action.Connection_condition, &action.Action, &action.Args)
 		errorHandler.HandleError(err)
 
+		filteredConnections := "filteredConnections"
 		matchingConnections, err := networkManager.Database.Query(db.SELECT([]string{
-			"*", "(" + db.SELECT([]string{"*", networkManager.Properties.Connections, action.Connection_condition}) + ")",
-			networkManager.Properties.Connections + ".ip=" + ip + "AND " + networkManager.Properties.Connections + ".localport=" + localport +
-				"AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
+			"*",
+			strings.TrimSuffix(db.AS([]string{db.SELECT([]string{"*", networkManager.Properties.Connections, action.Connection_condition}), filteredConnections}), ";"),
+			filteredConnections + ".ip=\"" + ip + "\" AND " + filteredConnections + ".localport=" + localport + " AND " + filteredConnections + ".remoteport=" + remoteport}))
+		errorHandler.HandleError(err)
 
 		size := 0
 
-		for ; rows.Next(); size++ {
+		for ; matchingConnections.Next(); size++ {
 		}
 
 		if size == 1 {
