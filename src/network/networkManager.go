@@ -50,7 +50,7 @@ func (networkManager *NetworkManager) Listen(localport int) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", ":"+strconv.Itoa(localport))
 	errorHandler.HandleError(err)
 
-	listener, err := net.ListenTCP("tcp", tcpAddr)
+	listener, err := net.ListenTCP("tcp4", tcpAddr)
 	errorHandler.HandleError(err)
 
 	accept := func() {
