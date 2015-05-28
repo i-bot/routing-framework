@@ -92,15 +92,12 @@ func (networkManager *NetworkManager) Close(identifier string) {
 func (networkManager *NetworkManager) Write(identifier string, msg string) {
 	conn, available := tcpConnections[identifier]
 	if available {
-		for {
-			buf := []byte(msg)
-			_, err := conn.Write(buf)
-			if err == nil {
-				HandleWrite(msg, networkManager, identifier)
-			} else {
-				fmt.Println("Write(): " + err.Error())
-				break
-			}
+		buf := []byte(msg)
+		_, err := conn.Write(buf)
+		if err == nil {
+			HandleWrite(msg, networkManager, identifier)
+		} else {
+			fmt.Println("Write(): " + err.Error())
 		}
 	}
 }
