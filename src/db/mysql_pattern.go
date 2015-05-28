@@ -1,6 +1,8 @@
 package db
 
-import ()
+import (
+	"strings"
+)
 
 var (
 	OPEN         = fillRequest(5, 5, fillOpen)
@@ -9,6 +11,7 @@ var (
 	DROP_TABLE   = fillRequest(1, -1, fillDrop_Table)
 	INSERT_INTO  = fillRequest(3, -1, fillInsert_Into)
 	DELETE       = fillRequest(2, 2, fillDelete)
+	AS           = fillRequest(2, 2, fillAs)
 )
 
 type fill func(values []string) (request string)
@@ -84,6 +87,14 @@ func fillDelete(values []string) (request string) {
 	switch size := len(values); {
 	case size == 2:
 		request = "DELETE FROM " + values[0] + " WHERE " + values[1] + ";"
+	}
+	return
+}
+
+func fillAs(values []string) (request string) {
+	switch size := len(values); {
+	case size == 2:
+		request = "(" + strings.TrimSuffix(values[0], ";") + ") AS " + values[1] + ";"
 	}
 	return
 }
