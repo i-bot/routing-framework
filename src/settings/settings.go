@@ -11,19 +11,29 @@ type Settings struct {
 
 	ConnectionTaskStackSleepTime int
 
-	Databases                                                                              [][]string
 	Connections, ActionQueue, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
+	Databases, Values                                                                      [][]string
 }
 
-func LoadSettings(location string) (settings *Settings) {
+func LoadSettings(location string) (properties *Settings) {
 	file, err := os.Open(location)
 	errorHandler.HandleError(err)
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 
-	properties := Settings{}
+	properties = &Settings{}
 	errorHandler.HandleError(decoder.Decode(&properties))
 
-	return &properties
+	return
+}
+
+func SaveSettings(location string, properties *Settings) {
+	file, err := os.Create(location)
+	errorHandler.HandleError(err)
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+
+	errorHandler.HandleError(encoder.Encode(&properties))
 }
