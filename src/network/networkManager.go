@@ -81,15 +81,12 @@ func (networkManager *NetworkManager) Listen(localport int) {
 func (networkManager *NetworkManager) Close(identifier string) {
 	conn, available := tcpConnections[identifier]
 	if available {
-		for {
-			delete(tcpConnections, identifier)
-			err := conn.Close()
-			if err == nil {
-				HandleClose(networkManager, identifier)
-			} else {
-				fmt.Println("Close(): " + err.Error())
-				break
-			}
+		delete(tcpConnections, identifier)
+		err := conn.Close()
+		if err == nil {
+			HandleClose(networkManager, identifier)
+		} else {
+			fmt.Println("Close(): " + err.Error())
 		}
 	}
 }
