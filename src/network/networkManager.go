@@ -40,7 +40,12 @@ func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	if err == nil {
-		tcpConnections[convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))] = conn
+		identifier := convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
+
+		tcpConnections[identifier] = conn
+		HandleOpen(networkManager, identifier)
+
+		networkManager.Read(identifier)
 	} else {
 		fmt.Println("Connect(): " + err.Error())
 	}
