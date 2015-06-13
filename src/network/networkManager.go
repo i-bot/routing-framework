@@ -1,11 +1,10 @@
 package network
 
 import (
-	"bytes"
 	"database/sql"
 	"errorHandler"
 	"fmt"
-	"io"
+	"bufio"
 	"net"
 	"settings"
 	"strconv"
@@ -108,11 +107,12 @@ func (networkManager *NetworkManager) Read(identifier string) {
 	read := func() {
 		conn, available := tcpConnections[identifier]
 		if available {
+			reader := bufio.NewReader(conn)
+			
 			for {
-				var buf bytes.Buffer
-				_, err := io.Copy(&buf, conn)
+				str, err := reader.ReadString('\n')
 				if err == nil {
-					HandleRead(buf.String(), networkManager, identifier)
+					HandleRead(str, networkManager, identifier)
 				} else {
 					fmt.Println("Read(): " + err.Error())
 					break
