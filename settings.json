@@ -5,22 +5,22 @@
     "Port":     "3306",
     "DB_Name":  "",
 
-    "ConnectionTaskStackSleepTime": 10,
+    "ActionQueueSleepTime":	10,
 
-    "Connections":      "connections",
-    "ActionQueue":      "actionQueue",
-    "OnOpenActions":    "onOpenActions",
-    "OnWriteActions":   "onWriteActions",
-    "OnReadActions":    "onReadActions",
-    "OnCloseActions":   "onCloseActions",
+    "Connections":	"connections",
+    "ActionQueue":	"actionQueue",
+    "OnOpen":		"onOpen",
+    "OnWrite":		"onWrite",
+    "OnRead":		"onRead",
+    "OnClose":		"onClose",
 
     "Databases":[   ["connections","ip VARCHAR(15) NOT NULL","localport SMALLINT UNSIGNED NOT NULL","remoteport SMALLINT UNSIGNED NOT NULL","PRIMARY KEY(ip,localport,remoteport)","MyISAM"],
                     ["actionQueue","id BIGINT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","InnoDB"],
-                    ["onOpenActions","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"],
-                    ["onWriteActions","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC', 'FORWARD_MSG') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"],
-                    ["onReadActions","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC', 'FORWARD_MSG') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"],
-                    ["onCloseActions","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"]
+                    ["onOpen","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"],
+                    ["onWrite","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC', 'FORWARD_MSG') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"],
+                    ["onRead","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC', 'FORWARD_MSG') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"],
+                    ["onClose","id INT NOT NULL AUTO_INCREMENT","connection_condition VARCHAR(1024) NOT NULL DEFAULT \"TRUE\"","action ENUM('CONNECT', 'LISTEN', 'CLOSE', 'WRITE', 'EXEC') NOT NULL","args VARCHAR(1024) NOT NULL","PRIMARY KEY(id)","MyISAM"]
                 ],
-            	
+
 	"Values":	[]
 }

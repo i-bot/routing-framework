@@ -8,7 +8,7 @@ import (
 )
 
 func HandleTaskQueue(networkManager *NetworkManager) {
-	duration := time.Duration(networkManager.Properties.ConnectionTaskStackSleepTime) * time.Millisecond
+	duration := time.Duration(networkManager.Properties.ActionQueueSleepTime) * time.Millisecond
 
 	for {
 		rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.ActionQueue}))

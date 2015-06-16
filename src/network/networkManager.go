@@ -42,7 +42,7 @@ func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 		identifier := convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
 
 		tcpConnections[identifier] = conn
-		HandleOpen(networkManager, identifier)
+		HandleConnect(networkManager, identifier)
 
 		networkManager.Read(identifier)
 	} else {
@@ -64,7 +64,7 @@ func (networkManager *NetworkManager) Listen(localport int) {
 				identifier := convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
 
 				tcpConnections[identifier] = conn
-				HandleOpen(networkManager, identifier)
+				HandleConnect(networkManager, identifier)
 
 				networkManager.Read(identifier)
 			} else {

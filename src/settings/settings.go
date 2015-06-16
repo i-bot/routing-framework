@@ -9,10 +9,10 @@ import (
 type Settings struct {
 	Username, Password, IP, Port, DB_Name string
 
-	ConnectionTaskStackSleepTime int
+	ActionQueueSleepTime int
 
-	Connections, ActionQueue, OnOpenActions, OnWriteActions, OnReadActions, OnCloseActions string
-	Databases, Values                                                                      [][]string
+	Connections, ActionQueue, OnOpen, OnWrite, OnRead, OnClose string
+	Databases, Values                                          [][]string
 }
 
 func LoadSettings(location string) (properties *Settings) {

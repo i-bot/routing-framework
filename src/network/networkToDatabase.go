@@ -6,22 +6,22 @@ import (
 	"strings"
 )
 
-func HandleOpen(networkManager *NetworkManager, identifier string) {
+func HandleConnect(networkManager *NetworkManager, identifier string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
 	_, err := networkManager.Database.Exec(db.INSERT_INTO([]string{
 		networkManager.Properties.Connections, "ip,localport,remoteport", "'" + ip + "'," + localport + "," + remoteport}))
 	errorHandler.HandleError(err)
 
-	scanAndHandleRows(networkManager.Properties.OnOpenActions, "", networkManager, identifier)
+	scanAndHandleRows(networkManager.Properties.OnOpen, "", networkManager, identifier)
 }
 
 func HandleRead(msg string, networkManager *NetworkManager, identifier string) {
-	scanAndHandleRows(networkManager.Properties.OnReadActions, msg, networkManager, identifier)
+	scanAndHandleRows(networkManager.Properties.OnRead, msg, networkManager, identifier)
 }
 
 func HandleWrite(msg string, networkManager *NetworkManager, identifier string) {
-	scanAndHandleRows(networkManager.Properties.OnWriteActions, msg, networkManager, identifier)
+	scanAndHandleRows(networkManager.Properties.OnWrite, msg, networkManager, identifier)
 }
 
 func HandleClose(networkManager *NetworkManager, identifier string) {
@@ -32,7 +32,7 @@ func HandleClose(networkManager *NetworkManager, identifier string) {
 			".localport=" + localport + "AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
 	errorHandler.HandleError(err)
 
-	scanAndHandleRows(networkManager.Properties.OnCloseActions, "", networkManager, identifier)
+	scanAndHandleRows(networkManager.Properties.OnClose, "", networkManager, identifier)
 }
 
 func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier string) {
