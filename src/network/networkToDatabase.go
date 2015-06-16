@@ -63,11 +63,24 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 		if size == 1 {
 			action.Msg = msg
 			action.Identifier = identifier
-			action.Handle(networkManager)
+			handleAction(action, networkManager)
 		}
 
 		errorHandler.HandleError(matchingConnections.Err())
 		matchingConnections.Close()
 	}
 	errorHandler.HandleError(rows.Err())
+}
+
+func handleAction(action Action, networkManager *NetworkManager) {
+	switch action.Action {
+	case CLOSE:
+		networkManager.Close(action.Identifier)
+
+	case WRITE:
+		networkManager.Write(action.Identifier, action.Msg)
+
+	default:
+		action.Handle(networkManager)
+	}
 }
