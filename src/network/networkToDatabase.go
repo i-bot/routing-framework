@@ -78,7 +78,7 @@ func handleAction(action Action, networkManager *NetworkManager) {
 		networkManager.Close(action.Identifier)
 
 	case WRITE:
-		networkManager.Write(action.Identifier, action.Msg)
+		networkManager.Write(action.Identifier, action.Args)
 
 	default:
 		action.Handle(networkManager)

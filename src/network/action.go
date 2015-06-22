@@ -78,7 +78,7 @@ func (action Action) Handle(networkManager *NetworkManager) {
 		identifiers := getMatchingConnections(action.Args, networkManager)
 
 		for _, identifier := range identifiers {
-			networkManager.Write(identifier, action.Args)
+			networkManager.Write(identifier, action.Msg)
 		}
 	}
 }
