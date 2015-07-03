@@ -1,10 +1,10 @@
 package network
 
 import (
+	"bufio"
 	"database/sql"
 	"errorHandler"
 	"fmt"
-	"bufio"
 	"net"
 	"settings"
 	"strconv"
@@ -27,27 +27,17 @@ type NetworkManager struct {
 	Properties *settings.Settings
 }
 
-var tcpConnections map[string]*net.TCPConn
+var tcpConnections map[string]net.Conn
 
 func (networkManager *NetworkManager) Init() {
-	tcpConnections = make(map[string]*net.TCPConn)
+	tcpConnections = make(map[string]net.Conn)
 }
 
 func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":"+strconv.Itoa(remoteport))
 	errorHandler.HandleError(err)
 
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
-	if err == nil {
-		identifier := convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
-
-		tcpConnections[identifier] = conn
-		HandleConnect(networkManager, identifier)
-
-		networkManager.Read(identifier)
-	} else {
-		fmt.Println("Connect(): " + err.Error())
-	}
+	networkManager.addConnection(net.DialTCP("tcp", nil, tcpAddr))
 }
 
 func (networkManager *NetworkManager) Listen(localport int) {
@@ -59,18 +49,7 @@ func (networkManager *NetworkManager) Listen(localport int) {
 
 	accept := func() {
 		for {
-			conn, err := listener.AcceptTCP()
-			if err == nil {
-				identifier := convertToIdentifier(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
-
-				tcpConnections[identifier] = conn
-				HandleConnect(networkManager, identifier)
-
-				networkManager.Read(identifier)
-			} else {
-				fmt.Println("Listen(): " + err.Error())
-				break
-			}
+			networkManager.addConnection(listener.AcceptTCP())
 		}
 	}
 
@@ -108,7 +87,7 @@ func (networkManager *NetworkManager) Read(identifier string) {
 		conn, available := tcpConnections[identifier]
 		if available {
 			reader := bufio.NewReader(conn)
-			
+
 			for {
 				str, err := reader.ReadString('\n')
 				if err == nil {
@@ -124,7 +103,7 @@ func (networkManager *NetworkManager) Read(identifier string) {
 	go read()
 }
 
-func convertToIdentifier(localAddr, remoteAddr *net.TCPAddr) (identifier string) {
+func (networkManager *NetworkManager) convertToIdentifierFromAddr(localAddr, remoteAddr *net.TCPAddr) (identifier string) {
 	return remoteAddr.IP.String() + ":" + strconv.Itoa(localAddr.Port) + ":" + strconv.Itoa(remoteAddr.Port)
 }
 
@@ -135,4 +114,17 @@ func (networkManager *NetworkManager) ConvertToIdentifier(ip string, localport, 
 func (networkManager *NetworkManager) ConvertToStrings(identifier string) (ip, localport, remoteport string) {
 	split := strings.Split(identifier, ":")
 	return split[0], split[1], split[2]
+}
+
+func (networkManager *NetworkManager) addConnection(conn net.Conn, err error) {
+	if err == nil {
+		identifier := networkManager.convertToIdentifierFromAddr(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
+
+		tcpConnections[identifier] = conn
+		HandleConnect(networkManager, identifier)
+
+		networkManager.Read(identifier)
+	} else {
+		fmt.Println("Connect(): " + err.Error())
+	}
 }
