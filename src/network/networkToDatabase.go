@@ -28,8 +28,8 @@ func HandleClose(networkManager *NetworkManager, identifier string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
 	_, err := networkManager.Database.Exec(db.DELETE([]string{
-		networkManager.Properties.Connections, networkManager.Properties.Connections + ".ip=" + ip + "AND " + networkManager.Properties.Connections +
-			".localport=" + localport + "AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
+		networkManager.Properties.Connections, networkManager.Properties.Connections + ".ip=\"" + ip + "\" AND " + networkManager.Properties.Connections +
+			".localport=" + localport + " AND " + networkManager.Properties.Connections + ".remoteport=" + remoteport}))
 	errorHandler.HandleError(err)
 
 	scanAndHandleRows(networkManager.Properties.OnClose, "", networkManager, identifier, "true")
