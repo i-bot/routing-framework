@@ -14,7 +14,7 @@ const (
 	CLOSE       = "CLOSE"
 	WRITE       = "WRITE"
 	EXECUTE     = "EXEC"
-	FORWARD_MSG = "FORWARD_MSG"
+	FORWARDMSG = "FORWARDMSG"
 	STOPLISTEN  = "STOPLISTEN"
 )
 
@@ -75,7 +75,7 @@ func (action Action) Handle(networkManager *NetworkManager) {
 
 		command.Run()
 
-	case FORWARD_MSG:
+	case FORWARDMSG:
 		identifiers := getMatchingConnections(action.Args, networkManager)
 
 		for _, identifier := range identifiers {
