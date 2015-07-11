@@ -17,7 +17,7 @@ var (
 
 func Start(props *settings.Settings) {
 	properties = props
-	
+
 	setupDatabase()
 	setupNetworkManager()
 	startHandlingTaskQueue()
@@ -35,7 +35,7 @@ func setupDatabase() {
 		_, err = mysql_db.Exec(db.CREATE_TABLE(element))
 		errorHandler.HandleError(err)
 	}
-	
+
 	for _, element := range properties.Values {
 		_, err = mysql_db.Exec(db.INSERT_INTO(element))
 		errorHandler.HandleError(err)

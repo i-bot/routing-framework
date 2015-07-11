@@ -27,17 +27,27 @@ type NetworkManager struct {
 	Properties *settings.Settings
 }
 
-var tcpConnections map[string]net.Conn
+var (
+	tcpConnections map[string]net.Conn
+	listeners      map[int]net.Listener
+)
 
 func (networkManager *NetworkManager) Init() {
 	tcpConnections = make(map[string]net.Conn)
+	listeners = make(map[int]net.Listener)
 }
 
 func (networkManager *NetworkManager) Connect(ip string, remoteport int) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", ip+":"+strconv.Itoa(remoteport))
 	errorHandler.HandleError(err)
 
-	networkManager.addConnection(net.DialTCP("tcp", nil, tcpAddr))
+	conn, err := net.DialTCP("tcp4", nil, tcpAddr)
+
+	if err == nil {
+		networkManager.addConnection(conn)
+	} else {
+		fmt.Println("Connect(): " + err.Error())
+	}
 }
 
 func (networkManager *NetworkManager) Listen(localport int) {
@@ -47,9 +57,18 @@ func (networkManager *NetworkManager) Listen(localport int) {
 	listener, err := net.ListenTCP("tcp4", tcpAddr)
 	errorHandler.HandleError(err)
 
+	listeners[localport] = listener
+
 	accept := func() {
 		for {
-			networkManager.addConnection(listener.AcceptTCP())
+			conn, err := listener.AcceptTCP()
+
+			if err == nil {
+				networkManager.addConnection(conn)
+			} else {
+				fmt.Println("Listen(): " + err.Error())
+				break
+			}
 		}
 	}
 
@@ -103,6 +122,17 @@ func (networkManager *NetworkManager) Read(identifier string) {
 	go read()
 }
 
+func (networkManager *NetworkManager) StopListen(port int) {
+	listener, available := listeners[port]
+	if available {
+		delete(listeners, port)
+		err := listener.Close()
+		if err != nil {
+			fmt.Println("Close(): " + err.Error())
+		}
+	}
+}
+
 func (networkManager *NetworkManager) convertToIdentifierFromAddr(localAddr, remoteAddr *net.TCPAddr) (identifier string) {
 	return remoteAddr.IP.String() + ":" + strconv.Itoa(localAddr.Port) + ":" + strconv.Itoa(remoteAddr.Port)
 }
@@ -116,15 +146,11 @@ func (networkManager *NetworkManager) ConvertToStrings(identifier string) (ip, l
 	return split[0], split[1], split[2]
 }
 
-func (networkManager *NetworkManager) addConnection(conn net.Conn, err error) {
-	if err == nil {
-		identifier := networkManager.convertToIdentifierFromAddr(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
+func (networkManager *NetworkManager) addConnection(conn net.Conn) {
+	identifier := networkManager.convertToIdentifierFromAddr(conn.LocalAddr().(*net.TCPAddr), conn.RemoteAddr().(*net.TCPAddr))
 
-		tcpConnections[identifier] = conn
-		HandleConnect(networkManager, identifier)
+	tcpConnections[identifier] = conn
+	HandleConnect(networkManager, identifier)
 
-		networkManager.Read(identifier)
-	} else {
-		fmt.Println("Connect(): " + err.Error())
-	}
+	networkManager.Read(identifier)
 }

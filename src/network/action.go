@@ -15,6 +15,7 @@ const (
 	WRITE       = "WRITE"
 	EXECUTE     = "EXEC"
 	FORWARD_MSG = "FORWARD_MSG"
+	STOPLISTEN  = "STOPLISTEN"
 )
 
 type IAction interface {
@@ -22,8 +23,8 @@ type IAction interface {
 }
 
 type Action struct {
-	ID                                 int
-	Action, Connection_condition, Args string
+	ID                                int
+	Action, ConnectionCondition, Args string
 
 	Msg        string
 	Identifier string
@@ -46,14 +47,14 @@ func (action Action) Handle(networkManager *NetworkManager) {
 		networkManager.Listen(localport)
 
 	case CLOSE:
-		identifiers := getMatchingConnections(action.Connection_condition, networkManager)
+		identifiers := getMatchingConnections(action.ConnectionCondition, networkManager)
 
 		for _, identifier := range identifiers {
 			networkManager.Close(identifier)
 		}
 
 	case WRITE:
-		identifiers := getMatchingConnections(action.Connection_condition, networkManager)
+		identifiers := getMatchingConnections(action.ConnectionCondition, networkManager)
 
 		for _, identifier := range identifiers {
 			networkManager.Write(identifier, action.Args)
@@ -80,6 +81,12 @@ func (action Action) Handle(networkManager *NetworkManager) {
 		for _, identifier := range identifiers {
 			networkManager.Write(identifier, action.Msg)
 		}
+
+	case STOPLISTEN:
+		port, err := strconv.Atoi(action.Args)
+		errorHandler.HandleError(err)
+
+		networkManager.StopListen(port)
 	}
 }
 

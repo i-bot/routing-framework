@@ -17,11 +17,11 @@ func HandleConnect(networkManager *NetworkManager, identifier string) {
 }
 
 func HandleRead(msg string, networkManager *NetworkManager, identifier string) {
-	scanAndHandleRows(networkManager.Properties.OnRead, msg, networkManager, identifier, "\"" + msg + "\" REGEXP " + networkManager.Properties.OnRead + ".msg_regex")
+	scanAndHandleRows(networkManager.Properties.OnRead, msg, networkManager, identifier, "\""+msg+"\" REGEXP "+networkManager.Properties.OnRead+".msg_regex")
 }
 
 func HandleWrite(msg string, networkManager *NetworkManager, identifier string) {
-	scanAndHandleRows(networkManager.Properties.OnWrite, msg, networkManager, identifier, "\"" + msg + "\" REGEXP " + networkManager.Properties.OnWrite + ".msg_regex")
+	scanAndHandleRows(networkManager.Properties.OnWrite, msg, networkManager, identifier, "\""+msg+"\" REGEXP "+networkManager.Properties.OnWrite+".msg_regex")
 }
 
 func HandleClose(networkManager *NetworkManager, identifier string) {
@@ -38,14 +38,14 @@ func HandleClose(networkManager *NetworkManager, identifier string) {
 func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier string, action_condition string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
-	rows, err := networkManager.Database.Query(db.SELECT([]string{"id, connection_condition, action, args", table, action_condition}))
+	rows, err := networkManager.Database.Query(db.SELECT([]string{"id, connectionCondition, action, args", table, action_condition}))
 	errorHandler.HandleError(err)
 
 	defer rows.Close()
 	for rows.Next() {
 		var action Action
 
-		err := rows.Scan(&action.ID, &action.Connection_condition, &action.Action, &action.Args, )
+		err := rows.Scan(&action.ID, &action.ConnectionCondition, &action.Action, &action.Args)
 		errorHandler.HandleError(err)
 
 		filteredConnections := "filteredConnections"
@@ -57,7 +57,7 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 						db.SELECT([]string{
 							"*",
 							networkManager.Properties.Connections,
-							action.Connection_condition}),
+							action.ConnectionCondition}),
 						filteredConnections}),
 					";"),
 				filteredConnections + ".ip=\"" + ip + "\" AND " + filteredConnections + ".localport=" + localport + " AND " + filteredConnections + ".remoteport=" + remoteport}))
