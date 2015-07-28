@@ -42,10 +42,10 @@ func updateID(networkManager *NetworkManager, table string) {
 
 	defer tx.Rollback()
 
-	_, err = tx.Prepare("SET @count=0;")
+	_, err = tx.Prepare(mysqlParser.SET([]string{"@count=0"}))
 	errorHandler.HandleError(err)
 
-	_, err = tx.Prepare("UPDATE " + table + " SET " + table + ".id = @count:= @count + 1;")
+	_, err = tx.Prepare(mysqlParser.UPDATE([]string{table, table + ".id = @count:= @count + 1"}))
 	errorHandler.HandleError(err)
 
 	err = tx.Commit()

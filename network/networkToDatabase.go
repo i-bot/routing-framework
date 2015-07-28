@@ -2,7 +2,6 @@ package network
 
 import (
 	"errorHandler"
-	"strings"
 
 	"github.com/i-bot/mysqlParser"
 )
@@ -21,13 +20,13 @@ func HandleConnect(networkManager *NetworkManager, identifier string) {
 func HandleRead(msg string, networkManager *NetworkManager, identifier string) {
 	table := networkManager.Properties.OnRead
 
-	scanAndHandleRows(table, msg, networkManager, identifier, "\""+msg+"\" REGEXP "+table+".msg_regex")
+	scanAndHandleRows(table, msg, networkManager, identifier, mysqlParser.REGEXP([]string{"\"" + msg + "\"", table + ".msg_regex"}))
 }
 
 func HandleWrite(msg string, networkManager *NetworkManager, identifier string) {
 	table := networkManager.Properties.OnWrite
 
-	scanAndHandleRows(table, msg, networkManager, identifier, "\""+msg+"\" REGEXP "+table+".msg_regex")
+	scanAndHandleRows(table, msg, networkManager, identifier, mysqlParser.REGEXP([]string{"\"" + msg + "\"", table + ".msg_regex"}))
 }
 
 func HandleClose(networkManager *NetworkManager, identifier string) {
@@ -35,8 +34,8 @@ func HandleClose(networkManager *NetworkManager, identifier string) {
 	table := networkManager.Properties.Connections
 
 	_, err := networkManager.Database.Exec(mysqlParser.DELETE([]string{
-		table, table + ".ip=\"" + ip + "\" AND " + table +
-			".localport=" + localport + " AND " + table + ".remoteport=" + remoteport}))
+		table, mysqlParser.AND([]string{table + ".ip=\"" + ip + "\"", table +
+			".localport=" + localport, table + ".remoteport=" + remoteport})}))
 	errorHandler.HandleError(err)
 
 	scanAndHandleRows(networkManager.Properties.OnClose, "", networkManager, identifier, "true")
@@ -59,15 +58,16 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 		matchingConnections, err := networkManager.Database.Query(
 			mysqlParser.SELECT([]string{
 				"*",
-				strings.TrimSuffix(
-					mysqlParser.AS([]string{
-						mysqlParser.SELECT([]string{
-							"*",
-							networkManager.Properties.Connections,
-							action.ConnectionCondition}),
-						filteredConnections}),
-					";"),
-				filteredConnections + ".ip=\"" + ip + "\" AND " + filteredConnections + ".localport=" + localport + " AND " + filteredConnections + ".remoteport=" + remoteport}))
+				mysqlParser.AS([]string{
+					mysqlParser.SELECT([]string{
+						"*",
+						networkManager.Properties.Connections,
+						action.ConnectionCondition}),
+					filteredConnections}),
+				mysqlParser.AND([]string{
+					filteredConnections + ".ip=\"" + ip + "\"",
+					filteredConnections + ".localport=" + localport,
+					filteredConnections + ".remoteport=" + remoteport})}))
 		errorHandler.HandleError(err)
 
 		size := 0
