@@ -1,11 +1,12 @@
 package network
 
 import (
-	"db"
 	"errorHandler"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/i-bot/mysqlParser"
 )
 
 const (
@@ -91,7 +92,7 @@ func (action Action) Handle(networkManager *NetworkManager) {
 }
 
 func getMatchingConnections(where string, networkManager *NetworkManager) (identifiers []string) {
-	rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.Connections, where}))
+	rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"*", networkManager.Properties.Connections, where}))
 	errorHandler.HandleError(err)
 
 	defer rows.Close()

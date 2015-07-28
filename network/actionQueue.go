@@ -1,17 +1,18 @@
 package network
 
 import (
-	"db"
 	"errorHandler"
 	"strconv"
 	"time"
+
+	"github.com/i-bot/mysqlParser"
 )
 
 func HandleTaskQueue(networkManager *NetworkManager) {
 	duration := time.Duration(networkManager.Properties.ActionQueueSleepTime) * time.Millisecond
 
 	for {
-		rows, err := networkManager.Database.Query(db.SELECT([]string{"*", networkManager.Properties.ActionQueue}))
+		rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"*", networkManager.Properties.ActionQueue}))
 		errorHandler.HandleError(err)
 
 		for rows.Next() {
@@ -22,7 +23,7 @@ func HandleTaskQueue(networkManager *NetworkManager) {
 
 			action.Handle(networkManager)
 
-			_, err = networkManager.Database.Exec(db.DELETE([]string{networkManager.Properties.ActionQueue, "actionQueue.id=" + strconv.Itoa(action.ID)}))
+			_, err = networkManager.Database.Exec(mysqlParser.DELETE([]string{networkManager.Properties.ActionQueue, "actionQueue.id=" + strconv.Itoa(action.ID)}))
 			errorHandler.HandleError(err)
 		}
 		errorHandler.HandleError(rows.Err())

@@ -2,15 +2,16 @@ package framework
 
 import (
 	"database/sql"
-	"db"
 	"errorHandler"
-	_ "github.com/go-sql-driver/mysql"
 	"network"
 	"settings"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/i-bot/mysqlParser"
 )
 
 var (
-	mysql_db       *sql.DB
+	mysqlDB        *sql.DB
 	properties     *settings.Settings
 	networkManager *network.NetworkManager
 )
@@ -26,18 +27,18 @@ func Start(props *settings.Settings) {
 func setupDatabase() {
 	var err error
 
-	mysql_db, err = sql.Open("mysql", db.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DB_Name}))
+	mysqlDB, err = sql.Open("mysql", mysqlParser.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DB_Name}))
 	errorHandler.HandleError(err)
 
 	for _, element := range properties.Databases {
-		_, err = mysql_db.Exec(db.DROP_TABLE(element[:1]))
+		_, err = mysqlDB.Exec(mysqlParser.DROP_TABLE(element[:1]))
 		errorHandler.HandleError(err)
-		_, err = mysql_db.Exec(db.CREATE_TABLE(element))
+		_, err = mysqlDB.Exec(mysqlParser.CREATE_TABLE(element))
 		errorHandler.HandleError(err)
 	}
 
 	for _, element := range properties.Values {
-		_, err = mysql_db.Exec(db.INSERT_INTO(element))
+		_, err = mysqlDB.Exec(mysqlParser.INSERT_INTO(element))
 		errorHandler.HandleError(err)
 	}
 
@@ -45,7 +46,7 @@ func setupDatabase() {
 }
 
 func setupNetworkManager() {
-	networkManager = &network.NetworkManager{mysql_db, properties}
+	networkManager = &network.NetworkManager{mysqlDB, properties}
 	networkManager.Init()
 }
 
