@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	CONNECT     = "CONNECT"
-	LISTEN      = "LISTEN"
-	CLOSE       = "CLOSE"
-	WRITE       = "WRITE"
-	EXECUTE     = "EXEC"
+	CONNECT    = "CONNECT"
+	LISTEN     = "LISTEN"
+	CLOSE      = "CLOSE"
+	WRITE      = "WRITE"
+	EXECUTE    = "EXEC"
 	FORWARDMSG = "FORWARDMSG"
-	STOPLISTEN  = "STOPLISTEN"
+	STOPLISTEN = "STOPLISTEN"
 )
 
 type IAction interface {

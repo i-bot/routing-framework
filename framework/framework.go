@@ -27,7 +27,7 @@ func Start(props *settings.Settings) {
 func setupDatabase() {
 	var err error
 
-	mysqlDB, err = sql.Open("mysql", mysqlParser.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DB_Name}))
+	mysqlDB, err = sql.Open("mysql", mysqlParser.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DBName}))
 	errorHandler.HandleError(err)
 
 	for _, element := range properties.Databases {
@@ -46,7 +46,7 @@ func setupDatabase() {
 }
 
 func setupNetworkManager() {
-	networkManager = &network.NetworkManager{mysqlDB, properties}
+	networkManager = &network.NetworkManager{Database: mysqlDB, Properties: properties}
 	networkManager.Init()
 }
 

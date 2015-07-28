@@ -42,10 +42,10 @@ func HandleClose(networkManager *NetworkManager, identifier string) {
 	scanAndHandleRows(networkManager.Properties.OnClose, "", networkManager, identifier, "true")
 }
 
-func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier string, action_condition string) {
+func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier string, actionCondition string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
-	rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"id, connectionCondition, action, args", table, action_condition}))
+	rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"id, connectionCondition, action, args", table, actionCondition}))
 	errorHandler.HandleError(err)
 
 	defer rows.Close()
