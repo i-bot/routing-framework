@@ -10,8 +10,7 @@ func HandleConnect(networkManager *NetworkManager, identifier string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 	table := networkManager.Properties.Connections
 
-	_, err := networkManager.Database.Exec(mysqlParser.INSERT_INTO([]string{
-		table, "ip,localport,remoteport", "'" + ip + "'," + localport + "," + remoteport}))
+	_, err := networkManager.Database.Exec(mysqlParser.INSERT_INTO(table, "ip,localport,remoteport", "'"+ip+"',"+localport+","+remoteport))
 	errorHandler.HandleError(err)
 
 	scanAndHandleRows(networkManager.Properties.OnOpen, "", networkManager, identifier, "true")
@@ -20,22 +19,25 @@ func HandleConnect(networkManager *NetworkManager, identifier string) {
 func HandleRead(msg string, networkManager *NetworkManager, identifier string) {
 	table := networkManager.Properties.OnRead
 
-	scanAndHandleRows(table, msg, networkManager, identifier, mysqlParser.REGEXP([]string{"\"" + msg + "\"", table + ".msg_regex"}))
+	scanAndHandleRows(table, msg, networkManager, identifier, mysqlParser.REGEXP("\""+msg+"\"", table+".msg_regex"))
 }
 
 func HandleWrite(msg string, networkManager *NetworkManager, identifier string) {
 	table := networkManager.Properties.OnWrite
 
-	scanAndHandleRows(table, msg, networkManager, identifier, mysqlParser.REGEXP([]string{"\"" + msg + "\"", table + ".msg_regex"}))
+	scanAndHandleRows(table, msg, networkManager, identifier, mysqlParser.REGEXP("\""+msg+"\"", table+".msg_regex"))
 }
 
 func HandleClose(networkManager *NetworkManager, identifier string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 	table := networkManager.Properties.Connections
 
-	_, err := networkManager.Database.Exec(mysqlParser.DELETE([]string{
-		table, mysqlParser.AND([]string{table + ".ip=\"" + ip + "\"", table +
-			".localport=" + localport, table + ".remoteport=" + remoteport})}))
+	_, err := networkManager.Database.Exec(mysqlParser.DELETE(
+		table,
+		mysqlParser.AND(
+			table+".ip=\""+ip+"\"",
+			table+".localport="+localport,
+			table+".remoteport="+remoteport)))
 	errorHandler.HandleError(err)
 
 	scanAndHandleRows(networkManager.Properties.OnClose, "", networkManager, identifier, "true")
@@ -44,7 +46,7 @@ func HandleClose(networkManager *NetworkManager, identifier string) {
 func scanAndHandleRows(table string, msg string, networkManager *NetworkManager, identifier string, actionCondition string) {
 	ip, localport, remoteport := networkManager.ConvertToStrings(identifier)
 
-	rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"id, connectionCondition, action, args", table, actionCondition}))
+	rows, err := networkManager.Database.Query(mysqlParser.SELECT("id, connectionCondition, action, args", table, actionCondition))
 	errorHandler.HandleError(err)
 
 	defer rows.Close()
@@ -56,18 +58,18 @@ func scanAndHandleRows(table string, msg string, networkManager *NetworkManager,
 
 		filteredConnections := "filteredConnections"
 		matchingConnections, err := networkManager.Database.Query(
-			mysqlParser.SELECT([]string{
+			mysqlParser.SELECT(
 				"*",
-				mysqlParser.AS([]string{
-					mysqlParser.SELECT([]string{
+				mysqlParser.AS(
+					mysqlParser.SELECT(
 						"*",
 						networkManager.Properties.Connections,
-						action.ConnectionCondition}),
-					filteredConnections}),
-				mysqlParser.AND([]string{
-					filteredConnections + ".ip=\"" + ip + "\"",
-					filteredConnections + ".localport=" + localport,
-					filteredConnections + ".remoteport=" + remoteport})}))
+						action.ConnectionCondition),
+					filteredConnections),
+				mysqlParser.AND(
+					filteredConnections+".ip=\""+ip+"\"",
+					filteredConnections+".localport="+localport,
+					filteredConnections+".remoteport="+remoteport)))
 		errorHandler.HandleError(err)
 
 		size := 0

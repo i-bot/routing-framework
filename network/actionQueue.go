@@ -12,7 +12,7 @@ func HandleTaskQueue(networkManager *NetworkManager) {
 	duration := time.Duration(networkManager.Properties.ActionQueueSleepTime) * time.Millisecond
 
 	for {
-		rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"*", networkManager.Properties.ActionQueue}))
+		rows, err := networkManager.Database.Query(mysqlParser.SELECT("*", networkManager.Properties.ActionQueue))
 		errorHandler.HandleError(err)
 
 		for rows.Next() {
@@ -23,7 +23,7 @@ func HandleTaskQueue(networkManager *NetworkManager) {
 
 			action.Handle(networkManager)
 
-			_, err = networkManager.Database.Exec(mysqlParser.DELETE([]string{networkManager.Properties.ActionQueue, "actionQueue.id=" + strconv.Itoa(action.ID)}))
+			_, err = networkManager.Database.Exec(mysqlParser.DELETE(networkManager.Properties.ActionQueue, "actionQueue.id="+strconv.Itoa(action.ID)))
 			errorHandler.HandleError(err)
 		}
 		errorHandler.HandleError(rows.Err())
@@ -42,10 +42,10 @@ func updateID(networkManager *NetworkManager, table string) {
 
 	defer tx.Rollback()
 
-	_, err = tx.Prepare(mysqlParser.SET([]string{"@count=0"}))
+	_, err = tx.Prepare(mysqlParser.SET("@count=0"))
 	errorHandler.HandleError(err)
 
-	_, err = tx.Prepare(mysqlParser.UPDATE([]string{table, table + ".id = @count:= @count + 1"}))
+	_, err = tx.Prepare(mysqlParser.UPDATE(table, table+".id = @count:= @count + 1"))
 	errorHandler.HandleError(err)
 
 	err = tx.Commit()

@@ -92,7 +92,7 @@ func (action Action) Handle(networkManager *NetworkManager) {
 }
 
 func getMatchingConnections(where string, networkManager *NetworkManager) (identifiers []string) {
-	rows, err := networkManager.Database.Query(mysqlParser.SELECT([]string{"*", networkManager.Properties.Connections, where}))
+	rows, err := networkManager.Database.Query(mysqlParser.SELECT("*", networkManager.Properties.Connections, where))
 	errorHandler.HandleError(err)
 
 	defer rows.Close()

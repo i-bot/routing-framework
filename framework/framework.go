@@ -27,18 +27,18 @@ func Start(props *settings.Settings) {
 func setupDatabase() {
 	var err error
 
-	mysqlDB, err = sql.Open("mysql", mysqlParser.OPEN([]string{properties.Username, properties.Password, properties.IP, properties.Port, properties.DBName}))
+	mysqlDB, err = sql.Open("mysql", mysqlParser.OPEN(properties.Username, properties.Password, properties.IP, properties.Port, properties.DBName))
 	errorHandler.HandleError(err)
 
 	for _, element := range properties.Databases {
-		_, err = mysqlDB.Exec(mysqlParser.DROP_TABLE(element[:1]))
+		_, err = mysqlDB.Exec(mysqlParser.DROP_TABLE(element[:1]...))
 		errorHandler.HandleError(err)
-		_, err = mysqlDB.Exec(mysqlParser.CREATE_TABLE(element))
+		_, err = mysqlDB.Exec(mysqlParser.CREATE_TABLE(element...))
 		errorHandler.HandleError(err)
 	}
 
 	for _, element := range properties.Values {
-		_, err = mysqlDB.Exec(mysqlParser.INSERT_INTO(element))
+		_, err = mysqlDB.Exec(mysqlParser.INSERT_INTO(element...))
 		errorHandler.HandleError(err)
 	}
 
